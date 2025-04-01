@@ -1049,6 +1049,7 @@ func FromV3SecurityScheme(doc3 *openapi3.T, ref *openapi3.SecuritySchemeRef) (*o
 		Ref:            FromV3Ref(ref.Ref),
 		Description:    securityScheme.Description,
 		ExtensionProps: securityScheme.ExtensionProps,
+		Scopes:         make(map[string]string),
 	}
 	switch securityScheme.Type {
 	case "http":
