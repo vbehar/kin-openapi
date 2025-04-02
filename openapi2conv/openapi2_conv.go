@@ -726,14 +726,16 @@ func FromV3SchemaRef(schema *openapi3.SchemaRef, components *openapi3.Components
 			paramType := "file"
 			required := false
 
-			value, _ := schema.Value.Extensions["x-formData-name"]
-			var originalName string
-			json.Unmarshal(value.(json.RawMessage), &originalName)
-			for _, prop := range schema.Value.Required {
-				if originalName == prop {
-					required = true
+			originalName := schema.Value.Title
+			if value, ok := schema.Value.Extensions["x-formData-name"]; ok {
+				json.Unmarshal(value.(json.RawMessage), &originalName)
+				for _, prop := range schema.Value.Required {
+					if originalName == prop {
+						required = true
+					}
 				}
 			}
+
 			return nil, &openapi2.Parameter{
 				In:              "formData",
 				Name:            originalName,
@@ -774,6 +776,12 @@ func FromV3SchemaRef(schema *openapi3.SchemaRef, components *openapi3.Components
 	}
 	for i, v := range schema.Value.AllOf {
 		schema.Value.AllOf[i], _ = FromV3SchemaRef(v, components)
+	}
+	for i, v := range schema.Value.OneOf {
+		schema.Value.OneOf[i], _ = FromV3SchemaRef(v, components)
+	}
+	for i, v := range schema.Value.AnyOf {
+		schema.Value.AnyOf[i], _ = FromV3SchemaRef(v, components)
 	}
 	return schema, nil
 }
